@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f1">
+  <meta name="description" content="A practical home for your training, food, and everyday progress.">
+  <title>goodform — your everyday fitness guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17231d;
+      --muted: #78827b;
+      --line: #e7ebe4;
+      --paper: #ffffff;
+      --canvas: #f4f6f1;
+      --green: #245c43;
+      --green-deep: #193f30;
+      --mint: #e2eee4;
+      --lime: #d3ef74;
+      --orange: #e58b61;
+      --lavender: #e9e6f4;
+      --radius: 16px;
+      font-family: "DM Sans", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
+    button { font: inherit; color: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #93b745; outline-offset: 3px; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 27px 17px 20px; background: var(--paper); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 11px; color: var(--ink); text-decoration: none; }
+    .brand-mark { width: 30px; height: 30px; border-radius: 10px 10px 10px 3px; display: grid; place-items: center; background: var(--green); color: var(--lime); font: 800 17px "Manrope", sans-serif; }
+    .brand-name { font: 800 20px "Manrope", sans-serif; letter-spacing: -.5px; }
+    .side-label { margin: 43px 11px 12px; color: #9ba39c; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+    .nav { display: grid; gap: 5px; }
+    .nav-button { min-height: 44px; width: 100%; padding: 0 12px; display: flex; align-items: center; gap: 12px; border: 0; border-radius: 9px; background: transparent; color: #647068; text-align: left; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s, color .2s; }
+    .nav-button:hover { background: #f3f6f1; color: var(--ink); }
+    .nav-button[aria-current="page"] { color: var(--green); background: #eaf1e9; }
+    .nav-icon { width: 21px; text-align: center; font: 700 16px "Manrope", sans-serif; }
+    .side-bottom { margin-top: auto; }
+    .coach-note { position: relative; overflow: hidden; margin: 0 3px 17px; padding: 17px 15px; border-radius: 12px; background: var(--green-deep); color: #fff; }
+    .coach-note::after { position: absolute; content: ""; width: 75px; height: 75px; right: -25px; bottom: -34px; border: 1px solid #ffffff3b; border-radius: 50%; box-shadow: 0 0 0 10px #ffffff0b, 0 0 0 20px #ffffff08; }
+    .coach-note small { color: #c3d9bd; font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+    .coach-note p { max-width: 135px; margin: 8px 0 13px; font: 700 15px/1.35 "Manrope", sans-serif; }
+    .coach-note button { position: relative; z-index: 1; padding: 0; border: 0; background: none; color: var(--lime); font-size: 11px; font-weight: 700; cursor: pointer; }
+    .profile { display: flex; align-items: center; gap: 10px; padding: 13px 10px 0; border-top: 1px solid var(--line); }
+    .avatar { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #f0dbc9; color: #6f4936; font-size: 11px; font-weight: 700; }
+    .profile strong { display: block; font-size: 12px; }
+    .profile span { color: var(--muted); font-size: 10px; }
+
+    .main { width: min(100%, 1480px); margin: 0 auto; padding: 25px clamp(22px, 4vw, 58px) 48px; }
+    .topbar { min-height: 38px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb strong { color: var(--ink); font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 9px; }
+    .date-chip { padding: 8px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: #566159; font-size: 11px; font-weight: 600; }
+    .icon-button { width: 35px; height: 35px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); font-size: 15px; cursor: pointer; }
+    .page { display: none; animation: arrive .35s ease both; }
+    .page.active { display: block; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+    .eyebrow { margin: 0 0 8px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: "Manrope", sans-serif; }
+    h1 { margin-bottom: 7px; font-size: clamp(26px, 3vw, 36px); line-height: 1.15; letter-spacing: -.8px; }
+    .page-intro { margin-bottom: 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .welcome { margin-bottom: 22px; display: flex; justify-content: space-between; align-items: end; gap: 18px; }
+    .welcome h1 { margin-bottom: 6px; }
+    .welcome p { margin: 0; color: var(--muted); font-size: 12px; }
+    .week-streak { display: flex; align-items: center; gap: 10px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+    .streak-flame { color: #de8257; font-size: 18px; }
+    .week-streak strong { display: block; font: 800 15px "Manrope", sans-serif; }
+    .week-streak span:last-child { display: block; color: var(--muted); font-size: 9px; }
+
+    .hero { min-height: 236px; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr minmax(240px, 39%); border-radius: var(--radius); background: var(--green-deep); color: #fff; }
+    .hero-copy { z-index: 1; padding: clamp(23px, 3.2vw, 38px); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+    .hero .eyebrow { color: var(--lime); }
+    .hero h2 { max-width: 390px; margin: 0 0 9px; font-size: clamp(22px, 2.5vw, 30px); line-height: 1.2; letter-spacing: -.6px; }
+    .hero-copy > p:not(.eyebrow) { max-width: 385px; margin: 0 0 20px; color: #d3e2d5; font-size: 12px; line-height: 1.6; }
+    .primary-button { min-height: 38px; padding: 0 15px; border: 0; border-radius: 8px; background: var(--lime); color: #243328; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform .18s, filter .18s; }
+    .primary-button:hover { transform: translateY(-1px); filter: brightness(1.04); }
+    .hero-image { position: relative; min-height: 100%; background-image: linear-gradient(90deg, var(--green-deep) 0%, #193f3017 40%), url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1000&q=85"); background-position: center, center 47%; background-size: cover; }
+    .hero-image::after { position: absolute; inset: 0; content: ""; background: linear-gradient(0deg, #193f304d, transparent 45%); }
+    .metrics { margin: 15px 0 24px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; }
+    .metric { min-height: 91px; padding: 14px 15px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+    .metric-label { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 10px; font-weight: 600; }
+    .metric-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+    .metric:nth-child(2) .metric-dot { background: #87ae75; }
+    .metric:nth-child(3) .metric-dot { background: #8e82bf; }
+    .metric:nth-child(4) .metric-dot { background: #d1ad51; }
+    .metric-value { margin-top: 11px; font: 800 20px "Manrope", sans-serif; letter-spacing: -.4px; }
+    .metric-value small { color: var(--muted); font: 500 10px "DM Sans", sans-serif; letter-spacing: 0; }
+
+    .section-heading { margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .section-heading h2 { margin: 0; font-size: 15px; letter-spacing: -.2px; }
+    .text-button { padding: 5px 0; border: 0; background: none; color: var(--green); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, .85fr); gap: 17px; }
+    .panel { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+    .days { margin: 15px 0 15px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
+    .day { min-width: 0; padding: 9px 3px 8px; border: 1px solid transparent; border-radius: 8px; background: #f5f7f3; color: #727d74; text-align: center; cursor: pointer; }
+    .day span { display: block; font-size: 9px; }
+    .day strong { display: block; margin-top: 5px; color: var(--ink); font: 700 12px "Manrope", sans-serif; }
+    .day.current { border-color: #b7ceac; background: var(--mint); color: var(--green); }
+    .day.selected { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+    .day.rest strong { color: #afb6af; }
+    .workout-row { display: flex; align-items: center; gap: 12px; padding-top: 13px; border-top: 1px solid var(--line); }
+    .workout-art { width: 55px; height: 55px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 9px; background: #e8eee1; color: var(--green); font: 800 15px "Manrope", sans-serif; }
+    .workout-info { min-width: 0; flex: 1; }
+    .workout-info strong { display: block; margin-bottom: 4px; font: 700 12px "Manrope", sans-serif; }
+    .workout-info span { color: var(--muted); font-size: 10px; }
+    .status { padding: 5px 8px; border-radius: 20px; background: #f4f2e7; color: #94733d; font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .status.done { background: #e5f1e7; color: var(--green); }
+    .nutrition-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .nutrition-top h2 { margin: 0; font-size: 15px; }
+    .nutrition-top > span { color: var(--muted); font-size: 9px; }
+    .water-count { margin: 15px 0 11px; display: flex; align-items: baseline; gap: 6px; }
+    .water-count strong { font: 800 25px "Manrope", sans-serif; }
+    .water-count span { color: var(--muted); font-size: 11px; }
+    .water-track { height: 7px; overflow: hidden; border-radius: 10px; background: #edf1ed; }
+    .water-fill { width: 0; height: 100%; border-radius: inherit; background: #7fb8bc; transition: width .3s; }
+    .water-bottom { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .water-bottom > span { color: var(--muted); font-size: 9px; }
+    .water-actions { display: flex; gap: 5px; }
+    .step-button { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 7px; background: white; font-size: 16px; line-height: 1; cursor: pointer; }
+    .meal-line { margin-top: 19px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .meal-line p { margin: 0 0 8px; color: var(--muted); font-size: 10px; }
+    .meal-suggestion { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; }
+    .meal-swatch { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 7px; background: #f6e8df; color: #a85b3d; font-size: 11px; }
+    .bottom-note { margin: 15px 1px 0; color: #879088; font-size: 9px; line-height: 1.5; }
+
+    .toolbar { margin: 4px 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .segmented { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
+    .segment { min-height: 29px; padding: 0 11px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 600; cursor: pointer; }
+    .segment[aria-pressed="true"] { background: var(--green); color: white; }
+    .plan-list { display: grid; gap: 9px; }
+    .plan-item { display: grid; grid-template-columns: 66px minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 15px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+    .plan-day { color: var(--muted); font-size: 10px; }
+    .plan-day strong { display: block; margin-top: 4px; color: var(--ink); font: 700 13px "Manrope", sans-serif; }
+    .plan-detail h3 { margin: 0 0 4px; font-size: 13px; }
+    .plan-detail p { margin: 0; color: var(--muted); font-size: 10px; }
+    .plan-action { min-width: 83px; min-height: 31px; padding: 0 10px; border: 1px solid #dfe6dc; border-radius: 7px; background: white; color: var(--green); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .plan-action.completed { border-color: #d8e9da; background: #eaf3e9; }
+    .guide-note { margin-top: 17px; padding: 15px 17px; border-left: 3px solid #c7d98d; border-radius: 0 8px 8px 0; background: #edf2e8; color: #58674d; font-size: 11px; line-height: 1.6; }
+    .guide-note strong { color: #344a34; }
+
+    .nutrition-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(230px, .75fr); gap: 17px; align-items: start; }
+    .meal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+    .meal-card { overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); }
+    .meal-photo { height: 112px; position: relative; background-size: cover; background-position: center; }
+    .meal-photo::after { position: absolute; inset: 0; content: ""; background: linear-gradient(0deg, #15231d55, transparent 55%); }
+    .meal-tag { position: absolute; z-index: 1; left: 10px; bottom: 9px; padding: 5px 7px; border-radius: 5px; background: #ffffffed; color: #4c5b50; font-size: 8px; font-weight: 700; }
+    .meal-card-body { padding: 12px; }
+    .meal-card h3 { margin: 0 0 5px; font-size: 12px; }
+    .meal-card p { margin: 0 0 9px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .meal-meta { display: flex; justify-content: space-between; color: #56665b; font-size: 9px; font-weight: 600; }
+    .food-aside { padding: 17px; border-radius: 11px; background: #eaf0e5; }
+    .food-aside h2 { margin-bottom: 8px; font-size: 14px; }
+    .food-aside > p { color: #647063; font-size: 10px; line-height: 1.6; }
+    .food-principle { padding: 11px 0; border-top: 1px solid #d7e1d3; }
+    .food-principle strong { display: block; margin-bottom: 4px; font-size: 10px; }
+    .food-principle span { display: block; color: #69756a; font-size: 9px; line-height: 1.5; }
+    .disclaimer { margin: 15px 0 0; color: #848d85; font-size: 9px; line-height: 1.55; }
+
+    .progress-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(240px, .8fr); gap: 17px; }
+    .chart-panel h2, .progress-side h2 { margin-bottom: 4px; font-size: 14px; }
+    .panel-caption { margin-bottom: 18px; color: var(--muted); font-size: 10px; }
+    .chart { height: 180px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: end; gap: 11px; padding: 12px 5px 0; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(to bottom, transparent 0, transparent 43px, #eef1ed 44px, transparent 45px); }
+    .chart-column { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: end; gap: 7px; }
+    .chart-bar { width: min(28px, 75%); min-height: 3px; border-radius: 5px 5px 0 0; background: #b8d2b2; transition: height .35s; }
+    .chart-bar.today { background: var(--green); }
+    .chart-column span { padding-bottom: 8px; color: var(--muted); font-size: 9px; }
+    .progress-summary { display: grid; gap: 8px; }
+    .progress-stat { display: flex; align-items: center; justify-content: space-between; padding: 12px 13px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
+    .progress-stat span { color: var(--muted); font-size: 10px; }
+    .progress-stat strong { font: 700 14px "Manrope", sans-serif; }
+    .progress-tip { margin-top: 13px; padding: 14px; border-radius: 9px; background: var(--lavender); color: #554f71; font-size: 10px; line-height: 1.6; }
+    .progress-tip strong { display: block; margin-bottom: 4px; color: #3e385b; }
+    .empty-note { padding: 28px; color: var(--muted); text-align: center; font-size: 11px; }
+
+    .mobile-nav { display: none; }
+    @media (min-width: 1500px) { .main { padding-top: 34px; } .hero { min-height: 260px; } }
+    @media (max-width: 950px) {
+      .app { grid-template-columns: 190px minmax(0, 1fr); }
+      .sidebar { padding-inline: 12px; }
+      .main { padding-inline: 22px; }
+      .dashboard-grid, .nutrition-layout, .progress-grid { grid-template-columns: minmax(0, 1fr); }
+      .nutrition-layout .food-aside { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 14px; }
+      .food-aside h2, .food-aside > p { grid-column: 1 / -1; }
+      .food-principle { border-top: 1px solid #d7e1d3; }
+    }
+    @media (max-width: 650px) {
+      .app { display: block; padding-bottom: 68px; }
+      .sidebar { display: none; }
+      .main { padding: 17px 15px 30px; }
+      .topbar { margin-bottom: 22px; }
+      .top-actions { gap: 6px; }
+      .date-chip { padding: 7px 8px; font-size: 9px; }
+      .welcome { align-items: center; }
+      .welcome h1 { font-size: 27px; }
+      .welcome p { max-width: 205px; font-size: 11px; }
+      .week-streak { gap: 7px; padding: 8px; }
+      .streak-flame { font-size: 16px; }
+      .week-streak strong { font-size: 13px; }
+      .week-streak span:last-child { font-size: 8px; }
+      .hero { min-height: 228px; grid-template-columns: 1fr 30%; }
+      .hero-copy { padding: 21px 17px; }
+      .hero h2 { font-size: 23px; }
+      .hero-copy > p:not(.eyebrow) { max-width: 260px; font-size: 10px; }
+      .hero-image { background-position: center, 57% center; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 19px; }
+      .metric { min-height: 78px; padding: 11px; }
+      .metric-value { margin-top: 8px; font-size: 18px; }
+      .dashboard-grid { gap: 11px; }
+      .panel { padding: 14px; }
+      .days { gap: 3px; }
+      .day { padding-inline: 1px; }
+      .day span { font-size: 8px; }
+      .day strong { font-size: 11px; }
+      .workout-row { gap: 9px; }
+      .workout-art { width: 45px; height: 45px; }
+      .status { padding: 5px 6px; font-size: 8px; }
+      .mobile-nav { position: fixed; z-index: 5; right: 0; bottom: 0; left: 0; min-height: 60px; padding: 5px 10px max(5px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: #ffffffed; backdrop-filter: blur(12px); }
+      .mobile-nav .nav-button { min-height: 48px; padding: 4px 2px; flex-direction: column; justify-content: center; gap: 2px; border-radius: 7px; font-size: 8px; }
+      .mobile-nav .nav-icon { font-size: 14px; }
+      .plan-item { grid-template-columns: 47px minmax(0, 1fr); gap: 10px; padding: 12px; }
+      .plan-action { grid-column: 2; justify-self: start; }
+      .plan-detail p { line-height: 1.5; }
+      .nutrition-layout .food-aside { display: block; }
+      .meal-grid { gap: 8px; }
+      .meal-photo { height: 88px; }
+      .meal-card-body { padding: 10px; }
+      .meal-card h3 { font-size: 11px; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .progress-grid { gap: 11px; }
+      .chart { gap: 5px; }
+    }
+    @media (max-width: 370px) {
+      .hero { grid-template-columns: 1fr 22%; }
+      .welcome { align-items: flex-start; }
+      .week-streak { padding: 6px; }
+      .meal-grid { grid-template-columns: 1fr; }
+      .meal-photo { height: 120px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="goodform home"><span class="brand-mark">g.</span><span class="brand-name">goodform</span></a>
+      <p class="side-label">Your space</p>
+      <nav class="nav" aria-label="Sections">
+        <button class="nav-button" data-page="home" aria-current="page"><span class="nav-icon">▦</span>Overview</button>
+        <button class="nav-button" data-page="workouts"><span class="nav-icon">↗</span>Workouts</button>
+        <button class="nav-button" data-page="nutrition"><span class="nav-icon">◒</span>Food guides</button>
+        <button class="nav-button" data-page="progress"><span class="nav-icon">⌁</span>My progress</button>
+      </nav>
+      <div class="side-bottom">
+        <div class="coach-note"><small>A little reminder</small><p>Consistency beats the perfect plan.</p><button data-page="workouts">Find your next move <span aria-hidden="true">→</span></button></div>
+        <div class="profile"><div class="avatar" aria-hidden="true">GF</div><div><strong>Your space</strong><span>Building healthy habits</span></div></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb">Your space <span aria-hidden="true">/</span> <strong id="breadcrumb-label">Overview</strong></div>
+        <div class="top-actions"><span class="date-chip" id="today-date"></span><button class="icon-button" id="reset-day" aria-label="Reset today's activity" title="Reset today's activity">↺</button></div>
+      </header>
+
+      <section class="page active" id="page-home" aria-labelledby="home-title">
+        <div class="welcome"><div><p class="eyebrow" id="welcome-date">YOUR DAY, YOUR PACE</p><h1 id="home-title">A little stronger today.</h1><p>Small steps add up. Here's a good place to start.</p></div><div class="week-streak"><span class="streak-flame" aria-hidden="true">✳</span><div><strong id="streak-count">0 days</strong><span>showing up this week</span></div></div></div>
+        <div class="hero"><div class="hero-copy"><p class="eyebrow">TODAY'S TRAINING</p><h2 id="hero-workout-title">Full body, no rush</h2><p id="hero-workout-description">A balanced strength session to build a steady foundation. Work at a pace that feels right for you.</p><button class="primary-button" data-page="workouts">View today's session <span aria-hidden="true">→</span></button></div><div class="hero-image" role="img" aria-label="A welcoming, light-filled fitness studio"></div></div>
+        <div class="metrics" aria-label="Today's activity summary">
+          <div class="metric"><div class="metric-label">Movement <span class="metric-dot"></span></div><div class="metric-value" id="movement-value">0 <small>/ 30 min</small></div></div>
+          <div class="metric"><div class="metric-label">Water <span class="metric-dot"></span></div><div class="metric-value" id="water-metric">0 <small>/ 8 glasses</small></div></div>
+          <div class="metric"><div class="metric-label">Sessions <span class="metric-dot"></span></div><div class="metric-value" id="session-metric">0 <small>this week</small></div></div>
+          <div class="metric"><div class="metric-label">Daily rhythm <span class="metric-dot"></span></div><div class="metric-value" id="rhythm-metric">Getting started</div></div>
+        </div>
+        <div class="dashboard-grid">
+          <section class="panel" aria-labelledby="week-title">
+            <div class="section-heading"><h2 id="week-title">Your week at a glance</h2><button class="text-button" data-page="workouts">See full plan <span aria-hidden="true">→</span></button></div>
+            <div class="days" id="week-strip" aria-label="Choose a day"></div>
+            <div class="workout-row"><div class="workout-art" id="workout-art" aria-hidden="true">FB</div><div class="workout-info"><strong id="selected-workout">Full body foundations</strong><span id="selected-workout-meta">30 min · Strength · Beginner friendly</span></div><span class="status" id="today-status">UP NEXT</span></div>
+          </section>
+          <section class="panel" aria-labelledby="water-title">
+            <div class="nutrition-top"><h2 id="water-title">Hydration check-in</h2><span>Daily guide: 8 glasses</span></div>
+            <div class="water-count"><strong id="water-count">0</strong><span>of 8 glasses</span></div>
+            <div class="water-track" role="progressbar" aria-label="Water glasses today" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" id="water-progress"><div class="water-fill" id="water-fill"></div></div>
+            <div class="water-bottom"><span>A gentle nudge to sip through the day.</span><div class="water-actions"><button class="step-button" id="water-minus" aria-label="Remove one glass of water">−</button><button class="step-button" id="water-plus" aria-label="Add one glass of water">+</button></div></div>
+            <div class="meal-line"><p>Something simple to try today</p><div class="meal-suggestion"><span class="meal-swatch" aria-hidden="true">+ </span>Yogurt, fruit &amp; a handful of oats</div></div>
+          </section>
+        </div>
+        <p class="bottom-note">Fitness and nutrition information here is general guidance, not personal medical advice. Take breaks, adapt movements to your needs, and check with a qualified professional if you have questions about your health.</p>
+      </section>
+
+      <section class="page" id="page-workouts" aria-labelledby="workouts-title">
+        <p class="eyebrow">MOVE IN A WAY THAT FEELS GOOD</p><h1 id="workouts-title">Your training plan</h1><p class="page-intro">A flexible weekly rhythm with room to make it your own. Choose a day to see what's on the plan.</p>
+        <div class="toolbar"><div class="segmented" aria-label="Workout plan level"><button class="segment" data-level="all" aria-pressed="true">All levels</button><button class="segment" data-level="beginner" aria-pressed="false">Beginner</button><button class="segment" data-level="steady" aria-pressed="false">Steady</button></div><span class="date-chip">3 movement days · 2 recovery days</span></div>
+        <div class="plan-list" id="plan-list"></div>
+        <div class="guide-note"><strong>Make it yours.</strong> Start with a comfortable effort, rest between movements, and skip anything that causes pain. A walk or a stretch counts as showing up, too.</div>
+      </section>
+
+      <section class="page" id="page-nutrition" aria-labelledby="nutrition-title">
+        <p class="eyebrow">FUEL FOR YOUR REAL LIFE</p><h1 id="nutrition-title">Food, without the fuss.</h1><p class="page-intro">Simple meal ideas and steady habits. No strict rules, calorie counting, or one-size-fits-all plans.</p>
+        <div class="toolbar"><div class="segmented" aria-label="Filter meal ideas"><button class="segment" data-meal="all" aria-pressed="true">All ideas</button><button class="segment" data-meal="breakfast" aria-pressed="false">Breakfast</button><button class="segment" data-meal="lunch" aria-pressed="false">Lunch</button><button class="segment" data-meal="dinner" aria-pressed="false">Dinner</button></div></div>
+        <div class="nutrition-layout"><div class="meal-grid" id="meal-grid"></div><aside class="food-aside"><h2>A balanced plate, your way</h2><p>Think of these as flexible ideas, not a formula you have to follow.</p><div class="food-principle"><strong>Add something colorful</strong><span>Fruit or vegetables bring variety, flavor, and useful nutrients.</span></div><div class="food-principle"><strong>Include a satisfying staple</strong><span>Grains, potatoes, bread, or another favorite can help make a meal filling.</span></div><div class="food-principle"><strong>Make room for protein</strong><span>Beans, tofu, eggs, yogurt, fish, or meat are all options.</span></div><p class="disclaimer">Nutrition needs differ from person to person. These are general meal suggestions, not a prescribed diet. For individual advice, talk with a registered dietitian or your healthcare professional.</p></aside></div>
+      </section>
+
+      <section class="page" id="page-progress" aria-labelledby="progress-title">
+        <p class="eyebrow">NOTICE THE LITTLE WINS</p><h1 id="progress-title">Your progress, your pace.</h1><p class="page-intro">A simple look at the habits you've logged this week. Progress can be more than a number.</p>
+        <div class="progress-grid"><section class="panel chart-panel"><h2>Movement this week</h2><p class="panel-caption">Minutes logged from completed sessions</p><div class="chart" id="movement-chart" role="img" aria-label="Weekly movement chart"></div></section><div class="progress-side"><section class="panel"><h2>This week's rhythm</h2><p class="panel-caption">Your activity at a glance</p><div class="progress-summary"><div class="progress-stat"><span>Sessions completed</span><strong id="progress-sessions">0</strong></div><div class="progress-stat"><span>Movement minutes</span><strong id="progress-minutes">0</strong></div><div class="progress-stat"><span>Water logged</span><strong id="progress-water">0 glasses</strong></div></div></section><div class="progress-tip"><strong>Keep the bar kind.</strong> Rest days are part of a healthy routine. Your activity log is here to help you notice patterns, not grade yourself.</div></div></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Main navigation">
+    <button class="nav-button" data-page="home" aria-current="page"><span class="nav-icon">▦</span>Home</button>
+    <button class="nav-button" data-page="workouts"><span class="nav-icon">↗</span>Workouts</button>
+    <button class="nav-button" data-page="nutrition"><span class="nav-icon">◒</span>Food</button>
+    <button class="nav-button" data-page="progress"><span class="nav-icon">⌁</span>Progress</button>
+  </nav>
+  <script>
+    const workouts = [
+      { day: "Mon", title: "Full body foundations", type: "Strength", duration: 30, level: "beginner", initials: "FB", description: "A balanced strength session to build a steady foundation. Work at a pace that feels right for you." },
+      { day: "Tue", title: "Easy movement", type: "Walk or mobility", duration: 20, level: "beginner", initials: "EM", description: "An easy walk or gentle mobility session. Keep it comfortable and let your body set the pace." },
+      { day: "Wed", title: "Lower body strength", type: "Strength", duration: 30, level: "steady", initials: "LB", description: "A steady lower-body session with simple strength moves and time to recover between sets." },
+      { day: "Thu", title: "Rest & reset", type: "Recovery", duration: 0, level: "beginner", initials: "RR", description: "A day to rest, take a gentle walk, or do whatever helps you feel restored." },
+      { day: "Fri", title: "Upper body basics", type: "Strength", duration: 25, level: "steady", initials: "UB", description: "A practical upper-body session. Choose weights that let you keep comfortable control." },
+      { day: "Sat", title: "Go your own way", type: "Choose your movement", duration: 25, level: "beginner", initials: "GY", description: "Pick something you enjoy: a bike ride, a class, a walk, or a favorite stretch." },
+      { day: "Sun", title: "Rest day", type: "Recovery", duration: 0, level: "beginner", initials: "RD", description: "Recovery is part of the plan. Take the day off, with no catching up required." }
+    ];
+    const meals = [
+      { category: "breakfast", name: "Berry oat bowl", description: "Oats, yogurt, seasonal berries, and a spoon of seeds.", meta: "Easy · Make ahead", photo: "photo-1517673132405-a56a62b18caf", tag: "BREAKFAST" },
+      { category: "breakfast", name: "Egg & greens toast", description: "Eggs on whole-grain toast with greens and a little olive oil.", meta: "15 min · Savory", photo: "photo-1525351484163-7529414344d8", tag: "BREAKFAST" },
+      { category: "lunch", name: "Colorful grain bowl", description: "Grains, roasted vegetables, chickpeas, and a lemony dressing.", meta: "Batch friendly · Plant-forward", photo: "photo-1512621776951-a57141f2eefd", tag: "LUNCH" },
+      { category: "lunch", name: "Avocado bean toast", description: "Creamy beans and avocado on toast with crunchy vegetables.", meta: "10 min · Plant-forward", photo: "photo-1525351484163-7529414344d8", tag: "LUNCH" },
+      { category: "dinner", name: "Salmon & greens", description: "Roasted salmon, potatoes, and greens with a simple herb dressing.", meta: "30 min · Flexible", photo: "photo-1467003909585-2f8a72700288", tag: "DINNER" },
+      { category: "dinner", name: "Weeknight lentil stew", description: "Lentils simmered with tomatoes, vegetables, and warming spices.", meta: "One pot · Make ahead", photo: "photo-1547592180-85f173990554", tag: "DINNER" }
+    ];
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const storageKey = "goodform-v1";
+    const today = new Date();
+    const isoToday = localDateKey(today);
+    let state = loadState();
+    let selectedDay = dayNames[today.getDay()];
+    let selectedLevel = "all";
+    let selectedMeal = "all";
+
+    function localDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        return {
+          water: saved.waterDate === isoToday ? Math.max(0, Math.min(8, Number(saved.water) || 0)) : 0,
+          waterDate: isoToday,
+          completed: Array.isArray(saved.completed) ? saved.completed.filter(item => item && typeof item.date === "string" && Number.isFinite(item.minutes)) : [],
+          level: saved.level || "beginner"
+        };
+      } catch {
+        return { water: 0, waterDate: isoToday, completed: [], level: "beginner" };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      renderDashboard();
+      renderProgress();
+    }
+
+    function mondayOf(date) {
+      const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      result.setDate(result.getDate() - ((result.getDay() + 6) % 7));
+      return result;
+    }
+
+    function weekDays() {
+      const monday = mondayOf(today);
+      return Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + index);
+        return { short: dayNames[date.getDay()], date: date.getDate(), iso: localDateKey(date) };
+      });
+    }
+
+    function completedToday() {
+      return state.completed.some(item => item.date === isoToday);
+    }
+
+    function renderWeek() {
+      const currentDays = weekDays();
+      document.getElementById("week-strip").innerHTML = currentDays.map(day => {
+        const classes = ["day", day.iso === isoToday ? "current" : "", day.short === selectedDay ? "selected" : "", day.short === "Sun" ? "rest" : ""].filter(Boolean).join(" ");
+        return `<button class="${classes}" data-day="${day.short}" aria-pressed="${day.short === selectedDay}"><span>${day.short}</span><strong>${day.date}</strong></button>`;
+      }).join("");
+      document.querySelectorAll("#week-strip [data-day]").forEach(button => button.addEventListener("click", () => {
+        selectedDay = button.dataset.day;
+        renderWeek();
+      }));
+      const workout = workouts.find(item => item.day === selectedDay) || workouts[0];
+      document.getElementById("selected-workout").textContent = workout.title;
+      document.getElementById("selected-workout-meta").textContent = workout.duration ? `${workout.duration} min · ${workout.type} · ${workout.level === "beginner" ? "Beginner friendly" : "Steady pace"}` : workout.type;
+      document.getElementById("workout-art").textContent = workout.initials;
+      const isComplete = state.completed.some(item => item.date === isoToday && item.day === workout.day);
+      const status = document.getElementById("today-status");
+      status.textContent = isComplete && workout.day === dayNames[today.getDay()] ? "DONE" : workout.duration ? "UP NEXT" : "RECOVER";
+      status.classList.toggle("done", isComplete && workout.day === dayNames[today.getDay()]);
+    }
+
+    function renderDashboard() {
+      const todayWorkout = workouts.find(item => item.day === dayNames[today.getDay()]) || workouts[0];
+      document.getElementById("hero-workout-title").textContent = todayWorkout.title;
+      document.getElementById("hero-workout-description").textContent = todayWorkout.description;
+      document.getElementById("water-count").textContent = state.water;
+      document.getElementById("water-metric").innerHTML = `${state.water} <small>/ 8 glasses</small>`;
+      document.getElementById("water-progress").setAttribute("aria-valuenow", state.water);
+      document.getElementById("water-fill").style.width = `${state.water / 8 * 100}%`;
+      const weekStart = localDateKey(mondayOf(today));
+      const week = state.completed.filter(item => item.date >= weekStart && item.date <= isoToday);
+      const minutes = week.reduce((total, item) => total + item.minutes, 0);
+      document.getElementById("movement-value").innerHTML = `${minutes} <small>/ 90 min</small>`;
+      document.getElementById("session-metric").innerHTML = `${week.length} <small>this week</small>`;
+      document.getElementById("streak-count").textContent = `${week.length} ${week.length === 1 ? "day" : "days"}`;
+      document.getElementById("rhythm-metric").textContent = week.length >= 3 ? "In a rhythm" : week.length ? "Building" : "Getting started";
+      document.getElementById("today-status").textContent = completedToday() ? "DONE" : todayWorkout.duration ? "UP NEXT" : "RECOVER";
+      document.getElementById("today-status").classList.toggle("done", completedToday());
+    }
+
+    function renderWorkouts() {
+      const filtered = workouts.filter(workout => selectedLevel === "all" || workout.level === selectedLevel);
+      document.getElementById("plan-list").innerHTML = filtered.map(workout => {
+        const completed = state.completed.some(item => item.date === isoToday && item.day === workout.day);
+        const action = workout.duration ? `<button class="plan-action ${completed ? "completed" : ""}" data-complete="${workout.day}" aria-pressed="${completed}">${completed ? "Completed" : "Log session"}</button>` : `<span class="status">RECOVERY</span>`;
+        return `<article class="plan-item"><div class="plan-day">${workout.day}<strong>${workout.duration ? `${workout.duration} min` : "Rest"}</strong></div><div class="plan-detail"><h3>${workout.title}</h3><p>${workout.type} · ${workout.level === "beginner" ? "Beginner friendly" : "Steady pace"}</p></div>${action}</article>`;
+      }).join("");
+      document.querySelectorAll("[data-complete]").forEach(button => button.addEventListener("click", () => {
+        const day = button.dataset.complete;
+        const existing = state.completed.findIndex(item => item.date === isoToday && item.day === day);
+        if (existing >= 0) state.completed.splice(existing, 1);
+        else {
+          const workout = workouts.find(item => item.day === day);
+          state.completed.push({ date: isoToday, day, minutes: workout.duration });
+        }
+        saveState();
+        renderWorkouts();
+        renderWeek();
+      }));
+    }
+
+    function renderMeals() {
+      const filtered = meals.filter(meal => selectedMeal === "all" || meal.category === selectedMeal);
+      document.getElementById("meal-grid").innerHTML = filtered.map(meal => `<article class="meal-card"><div class="meal-photo" role="img" aria-label="${meal.name}" style="background-image:url('https://images.unsplash.com/${meal.photo}?auto=format&fit=crop&w=640&q=80')"><span class="meal-tag">${meal.tag}</span></div><div class="meal-card-body"><h3>${meal.name}</h3><p>${meal.description}</p><div class="meal-meta"><span>${meal.meta.split(" · ")[0]}</span><span>${meal.meta.split(" · ")[1] || "Flexible"}</span></div></div></article>`).join("");
+    }
+
+    function renderProgress() {
+      const start = mondayOf(today);
+      const days = Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        const key = localDateKey(date);
+        const minutes = state.completed.filter(item => item.date === key).reduce((total, item) => total + item.minutes, 0);
+        return { label: dayNames[date.getDay()], minutes, today: key === isoToday };
+      });
+      document.getElementById("movement-chart").innerHTML = days.map(day => `<div class="chart-column"><div class="chart-bar ${day.today ? "today" : ""}" style="height:${Math.max(day.minutes ? 8 : 3, Math.min(100, day.minutes / 45 * 100))}%" title="${day.minutes} minutes"></div><span>${day.label}</span></div>`).join("");
+      const current = state.completed.filter(item => item.date >= localDateKey(start) && item.date <= isoToday);
+      document.getElementById("progress-sessions").textContent = current.length;
+      document.getElementById("progress-minutes").textContent = current.reduce((sum, item) => sum + item.minutes, 0);
+      document.getElementById("progress-water").textContent = `${state.water} glasses today`;
+    }
+
+    function showPage(name) {
+      document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page.id === `page-${name}`));
+      document.querySelectorAll(".nav-button[data-page]").forEach(button => {
+        if (button.dataset.page === name) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      document.getElementById("breadcrumb-label").textContent = ({ home: "Overview", workouts: "Workouts", nutrition: "Food guides", progress: "My progress" })[name] || "Overview";
+      if (name === "workouts") renderWorkouts();
+      if (name === "nutrition") renderMeals();
+      if (name === "progress") renderProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => showPage(button.dataset.page)));
+    document.querySelectorAll("[data-level]").forEach(button => button.addEventListener("click", () => {
+      selectedLevel = button.dataset.level;
+      document.querySelectorAll("[data-level]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      renderWorkouts();
+    }));
+    document.querySelectorAll("[data-meal]").forEach(button => button.addEventListener("click", () => {
+      selectedMeal = button.dataset.meal;
+      document.querySelectorAll("[data-meal]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      renderMeals();
+    }));
+    document.getElementById("water-plus").addEventListener("click", () => { state.water = Math.min(8, state.water + 1); saveState(); });
+    document.getElementById("water-minus").addEventListener("click", () => { state.water = Math.max(0, state.water - 1); saveState(); });
+    document.getElementById("reset-day").addEventListener("click", () => {
+      state.water = 0;
+      state.completed = state.completed.filter(item => item.date !== isoToday);
+      saveState();
+      renderWorkouts();
+      renderWeek();
+    });
+
+    const dateFormatter = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" });
+    document.getElementById("today-date").textContent = dateFormatter.format(today);
+    document.getElementById("welcome-date").textContent = new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric" }).format(today).toUpperCase();
+    renderWeek();
+    renderDashboard();
+    renderProgress();
+  </script>
+</body>
+</html>
